@@ -1,4 +1,4 @@
-# module-node-twitch
+# module-node-openai
 
 To install dependencies:
 
