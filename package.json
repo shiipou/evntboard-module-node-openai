@@ -1,0 +1,48 @@
+{
+  "name": "module-node-twitch",
+  "version": "1.0.0",
+  "description": "Module twitch for Evntboard",
+  "author": "EvntBoard.io",
+  "license": "MIT",
+  "module": "dist/main.js",
+  "bin": "dist/main.js",
+  "scripts": {
+    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/main.ts",
+    "start": "ts-node src/main.ts",
+    "prebuild": "rimraf ./dist && rimraf ./build && tsc ./src/main.ts --outDir ./dist",
+    "build": "cross-env PKG_CACHE_PATH=./pkg-cache node ./build.js",
+    "lint": "standard --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "json-rpc-2.0": "^1.6.0",
+    "openai": "^4.24.0",
+    "uuid": "^9.0.1",
+    "ws": "^8.15.1"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.9",
+    "@types/uuid": "^9.0.7",
+    "@types/ws": "^8.5.10",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.0.1",
+    "pkg": "^5.8.1",
+    "pkg-fetch": "^3.5.2",
+    "rcedit": "^4.0.1",
+    "rimraf": "^5.0.5",
+    "standard": "^17.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2",
+    "yargs": "^17.7.2"
+  },
+  "pkg": {
+    "scripts": [
+      "dist/**/*.js"
+    ],
+    "assets": [
+      "assets/**/*",
+      "node_modules/es-get-iterator/**/*"
+    ]
+  }
+}
