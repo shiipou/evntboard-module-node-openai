@@ -52,7 +52,7 @@ const main = async () => {
       return assistants
     })
 
-    serverAndClient.addMethod('getAssistant', async ({ assistantId}) => {
+    serverAndClient.addMethod('getAssistant', async ({ assistantId }) => {
       const assistant = await openai.beta.assistants.retrieve(assistantId)
       return assistant
     })
@@ -105,6 +105,11 @@ const main = async () => {
     serverAndClient.addMethod('getRuns', async ({ threadId }) => {
       const runs = await openai.beta.threads.runs.list(threadId)
       return runs
+    })
+
+    serverAndClient.addMethod('submitToolOutputs', async ({ threadId, runId, outputs }) => {
+      const run = await openai.beta.threads.runs.submitToolOutputs(threadId, runId, { tool_outputs: outputs })
+      return run
     })
   }
 
