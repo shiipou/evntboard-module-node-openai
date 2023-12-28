@@ -111,7 +111,48 @@ const main = async () => {
       const run = await openai.beta.threads.runs.submitToolOutputs(threadId, runId, { tool_outputs: outputs })
       return run
     })
+
+    serverAndClient.addMethod('vision', async ({ prompt, image, additional_instructions }) => {
+      let assistant_prompt
+      if (additional_instructions) {
+        assistant_prompt = [{
+          role: 'assistant',
+          content: [{
+            type: 'text',
+            content: additional_instructions
+          }]
+        }]
+      }
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4-vision-preview',
+        messages: [{
+          role: "user",
+          content: [...additional_instructions, {
+            type: "text", text: prompt
+          }, {
+            type: 'image_url',
+            image_url: {
+              "url": image
+            }
+          }]
+        }]
+      })
+      return response
+    })
+
+    serverAndClient.addMethod('dalle', async ({ prompt, n='1', size="1024x1024", quality='standard' }) => {
+      const response = await openai.images.generate({
+        model: "dall-e-3",
+        prompt: prompt,
+        size: size,
+        quality: quality,
+        n: n
+      })
+
+      return { urls: response.data.map(resp => resp.url) }
+    })
   }
+}
 
   ws.onmessage = (event: { data: { toString: () => string } }) => {
     serverAndClient.receiveAndSend(JSON.parse(event.data.toString()))
