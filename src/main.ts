@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import {JSONRPCClient, JSONRPCServer, JSONRPCServerAndClient} from 'json-rpc-2.0'
-import {v5 as uuid} from 'uuid'
+import * as uuid from 'uuid'
 import { WebSocket } from 'ws'
 import OpenAI from 'openai'
 
@@ -32,7 +32,7 @@ const main = async () => {
       } catch (error) {
         return Promise.reject(error)
       }
-    }, () => uuid('openai', UUID_NAMESPACE))
+    }, () => uuid.v4())
   )
 
   ws = new WebSocket(EVNTBOARD_HOST)
@@ -142,8 +142,7 @@ const main = async () => {
     })
 
     serverAndClient.addMethod('dalle', async ({ prompt, n = '1', size = "1024x1024", quality = 'standard' }) => {
-      const namespace = '99c37adf-a97b-418b-9121-95db5ee94faa'
-      const queueId = uuid('dalle', namespace)
+      const queueId = uuid.v5('dalle', UUID_NAMESPACE)
       openai.images.generate({
         model: "dall-e-3",
         prompt: prompt,
