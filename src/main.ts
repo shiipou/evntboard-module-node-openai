@@ -22,6 +22,7 @@ const main = async () => {
 
   let ws: WebSocket
 
+  const UUID_NAMESPACE = '434a8de2-2e14-4eb8-b097-5019f5737601'
   const serverAndClient = new JSONRPCServerAndClient(
     new JSONRPCServer(),
     new JSONRPCClient((request) => {
@@ -31,7 +32,7 @@ const main = async () => {
       } catch (error) {
         return Promise.reject(error)
       }
-    }, () => uuid())
+    }, () => uuid('openai', UUID_NAMESPACE))
   )
 
   ws = new WebSocket(EVNTBOARD_HOST)
