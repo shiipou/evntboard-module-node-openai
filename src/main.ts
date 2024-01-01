@@ -141,8 +141,8 @@ const main = async () => {
       return response
     })
 
-    serverAndClient.addMethod('dalle', async ({ prompt, n = '1', size = "1024x1024", quality = 'standard' }) => {
-      const queueId = uuid.v5('dalle', UUID_NAMESPACE)
+    serverAndClient.addMethod('generate', async ({ prompt, n = '1', size = "1024x1024", quality = 'standard' }) => {
+      const queueId = uuid.v5('generate', UUID_NAMESPACE)
       openai.images.generate({
         model: "dall-e-3",
         prompt: prompt,
@@ -151,14 +151,14 @@ const main = async () => {
         n: n
       }).then((response) => {
         const output = response.data.map(resp => resp.url)
-        console.log('dalle-complete', output)
+        console.log('generate-complete', output)
 
         serverAndClient.notify('event.new', {
           name: `${MODULE_CODE}-queue-state-changed`,
           payload: {id: queueId, status: 'completed', output}
         })
       })
-      console.log('dalle-pending', { queueId })
+      console.log('generate-pending', { queueId })
 
       return { type: 'queue', message: { status: 'in_progress', id: queueId } }
     })
