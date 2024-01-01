@@ -155,12 +155,12 @@ const main = async () => {
 
         serverAndClient.notify('event.new', {
           name: `${MODULE_CODE}-queue-state-changed`,
-          payload: {id: queueId, state: 'completed', output}
+          payload: {id: queueId, status: 'completed', output}
         })
       })
       console.log('dalle-pending', { queueId })
 
-      return { type: 'queue', message: { state: 'in_progress', id: queueId } }
+      return { type: 'queue', message: { status: 'in_progress', id: queueId } }
     })
   }
 
