@@ -157,7 +157,14 @@ const main = async () => {
           name: `${MODULE_CODE}-queue-state-changed`,
           payload: {id: queueId, status: 'completed', output}
         })
-      })
+      }).catch((reason => {
+        console.log('generate-failure', reason)
+
+        serverAndClient.notify('event.new', {
+          name: `${MODULE_CODE}-queue-state-changed`,
+          payload: {id: queueId, status: 'failure', output: reason}
+        })
+      }))
       console.log('generate-pending', { queueId })
 
       return { type: 'queue', message: { status: 'in_progress', id: queueId } }
