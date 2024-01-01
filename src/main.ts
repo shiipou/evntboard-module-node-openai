@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import {JSONRPCClient, JSONRPCServer, JSONRPCServerAndClient} from 'json-rpc-2.0'
-import {v4 as uuid} from 'uuid'
+import {v5 as uuid} from 'uuid'
 import { WebSocket } from 'ws'
 import OpenAI from 'openai'
 
@@ -113,10 +113,10 @@ const main = async () => {
     })
 
     serverAndClient.addMethod('vision', async ({ prompt, image, additional_instructions }) => {
-      let assistant_prompt
+      let assistant_prompt: any[] = []
       if (additional_instructions) {
         assistant_prompt = [{
-          role: 'assistant',
+          role: 'system',
           content: [{
             type: 'text',
             content: additional_instructions
@@ -125,9 +125,9 @@ const main = async () => {
       }
       const response = await openai.chat.completions.create({
         model: 'gpt-4-vision-preview',
-        messages: [{
+        messages: [...assistant_prompt, {
           role: "user",
-          content: [...additional_instructions, {
+          content: [{
             type: "text", text: prompt
           }, {
             type: 'image_url',
@@ -140,19 +140,29 @@ const main = async () => {
       return response
     })
 
-    serverAndClient.addMethod('dalle', async ({ prompt, n='1', size="1024x1024", quality='standard' }) => {
-      const response = await openai.images.generate({
+    serverAndClient.addMethod('dalle', async ({ prompt, n = '1', size = "1024x1024", quality = 'standard' }) => {
+      const namespace = '99c37adf-a97b-418b-9121-95db5ee94faa'
+      const queueId = uuid('dalle', namespace)
+      openai.images.generate({
         model: "dall-e-3",
         prompt: prompt,
         size: size,
         quality: quality,
         n: n
-      })
+      }).then((response) => {
+        const output = response.data.map(resp => resp.url)
+        console.log('dalle-complete', output)
 
-      return { urls: response.data.map(resp => resp.url) }
+        serverAndClient.notify('event.new', {
+          name: `${MODULE_CODE}-queue-state-changed`,
+          payload: {id: queueId, state: 'completed', output}
+        })
+      })
+      console.log('dalle-pending', { queueId })
+
+      return { type: 'queue', message: { state: 'in_progress', id: queueId } }
     })
   }
-}
 
   ws.onmessage = (event: { data: { toString: () => string } }) => {
     serverAndClient.receiveAndSend(JSON.parse(event.data.toString()))
